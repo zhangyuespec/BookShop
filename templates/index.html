@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>index</title>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/fontawesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/mystyle.css">
+    <link rel="stylesheet" href="/static/sweetalert/sweetalert.css">
+</head>
+<body>
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">图书管理系统</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav ">
+                <li class="active"><a href="/index/">首页推荐 <span class="sr-only">(current)</span></a></li>
+                <li><a href="/remen/">热门图书</a></li>
+                <li><a href="/huojiang/">获奖图书</a></li>
+            </ul>
+            <form class="navbar-form navbar-left" method="get" action="/find_book/">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input type="text" name="book_name" class="form-control" placeholder="Search">
+                </div>
+                <button type="submit" class="btn btn-default">Submit</button>
+            </form>
+            <ul class="nav navbar-nav navbar-right">
+                {% if request.user.username %}
+                    <li><a href="#">{{ request.user.username }}</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                           aria-expanded="false">个人中心 <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/home/">个人主页</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="/logout/">注销</a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li><a href="/login/">登录</a></li>
+                    <li><a href="/reg/">注册</a></li>
+
+                {% endif %}
+
+
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+<!--主页面开始-->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2">
+            {% if request.user.username %}
+                <h4 style="color: #000066">猜您喜欢</h4>
+                {% for book in book_list2 %}
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">{{ book.title }}-{{ book.author }}</div>
+                        <a href="/find/{{ book.pk }}">
+                            <img class="media-object author-img2 img-circle"
+                             src="/static/pic/{{ book.title }}.png" alt="头像">
+                        </a>
+
+                        <div class="panel-body">
+                            {{ book.brief }}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                请<a href="/login/">登录</a>,才能享受推荐功能!
+            {% endif %}
+
+
+        </div>
+
+        <div>
+            <div class="col-md-8">
+            <h4 style="color: #000066">推荐图书</h4>
+                <!--文章列表-->
+                <div class="article-list">
+                    {% for foo in book_list %}
+                        <div class="article">
+                            {#                            <h3><a href="/blog/{{ foo.user.username }}/article/{{ foo.pk }}/">{{ foo.title }}</a></h3>#}
+                            <div class="media">
+                                <div class="media-left media-middle">
+                                    <label for="id_span"><a
+                                            href="/find/{{ foo.pk }}" id="id_span">
+                                        <img class="media-object author-img "
+                                             src="/static/pic/{{ foo.title }}.png" alt="头像">
+                                    </a>
+                                    </label>
+                                </div>
+
+                                <div class="media-body">
+                                    <h3><a href="/find/{{ foo.title }}"></a>{{ foo.title }}</h3>
+                                    <p>{{ foo.brief }}</p>
+                                </div>
+                            </div>
+                            <div class="article-footer">
+                                <span><a
+                                        href="/blog/{{ foo.user.username }}"
+                                        id="id_span">{{ foo.user.username }}</a></span>发布于
+                                <span>{{ foo.publish }}{{ foo.time }}</span>
+                                {#                            <span class="glyphicon glyphicon-comment">评论({{ foo.comment_set.all.count }})</span>#}
+                                {#                            <span class="glyphicon glyphicon-thumbs-up">点赞({{ foo.articleupdown_set.all.count }})</span>#}
+                                <i class="fa fa-comments "
+                                   aria-hidden="true"><span>评论({{ foo.comment_set.all.count }})</span></i>
+                                {#                                <i class="fa fa-thumbs-o-up"#}
+                                {#                                   aria-hidden="true"><span>点赞({{ foo.articleupdown_set.all.count }})</span></i>#}
+                            </div>
+                            <hr color="red">
+                            {# 分割线 #}
+                        </div>
+                    {% endfor %}
+
+                </div>
+                <!--文章列表结束-->
+            </div>
+            <div class="col-md-2">
+            <h4 style="color: #000066">热门活动</h4>
+                {% for activate in activate_list %}
+                    <div class="panel panel-primary">
+                        <div class="panel-heading"><a href="/activate/{{ activate.pk }}"
+                                                      style="color: black">{{ activate.name }}</a></div>
+                        <div class="panel-body">
+                            <a href="/activate/{{ activate.pk }}" style="color: black"> {{ activate.detail }}</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+<!--主页面结束-->
+
+
+<script src="/static/jquery-3.3.1.js"></script>
+<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+<script src="/static/sweetalert/sweetalert.js"></script>
+</body>
+{#<script>#}
+{#    $(".btn-default").click(function () {#}
+{#        alert("点击成功");#}
+{#        var book_name = $("#book_name").val();#}
+{#        alert(book_name);#}
+{#        $.ajax({#}
+{#            url: "/find_book/",#}
+{#            type: "get",#}
+{#            data: {#}
+{#                "book_name": book_name,#}
+{#            },#}
+{#            success: function (data) {#}
+{#                alert("成功");#}
+{#                if (data.status=1) {#}
+{#                    //查找成功#}
+{#                    alert(data.msg);#}
+{#                    location.href = data.msg;#}
+{#                }#}
+{#                else {#}
+{#                    alert(data.msg);#}
+{#                    console.log(data.msg,data.status);#}
+{#                }#}
+{#            }#}
+{#        })#}
+{#    })#}
+{#</script>#}
+</html>

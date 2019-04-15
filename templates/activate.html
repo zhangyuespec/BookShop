@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+    {% for foo in activate %}
+        <title>{{ foo.name }}</title>
+    {% endfor %}
+
+
+	<link rel="stylesheet" type="text/css" href="/static/弹窗.css">
+
+</head>
+<body>
+{% for foo in activate %}
+<div style="width: 200px;height: 200px;"><button id="open_btn" class="btn">点击报名{{ foo.name }}</button></div>
+
+	<!-- 弹窗内容开始 -->
+	<div id="background" class="back">
+		<div id="div1" class="content">
+			<div id="close">
+				<span id="close-button">×</span>
+				<h2>报名活动</h2>
+			</div>
+			<div id="div2">
+				<h3>{{ foo.name }}</h3>
+				<p>{{ foo.detail }}</p>
+			</div>
+			<h3 id="foot"><a href="/baoming/{{ foo.pk }}">报名</a></h3>
+		</div>
+	</div>
+	<!-- 弹窗内容结束 -->
+{% endfor %}
+	<script src="/static/弹窗.js"></script>
+</body>
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ username }}的个人博客</title>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/fontawesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/mystyle.css">
+    <link rel="stylesheet" href="/static/theme/{{ blog.theme }}">
+    <script src="/static/jquery-3.3.1.js"></script>
+    <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">图书管理系统</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav ">
+                <li class="active"><a href="/index/">首页推荐 <span class="sr-only">(current)</span></a></li>
+                <li><a href="/remen/">热门图书</a></li>
+                <li><a href="/huojiang/">获奖图书</a></li>
+            </ul>
+            <form class="navbar-form navbar-left" method="get" action="/find_book/">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input type="text" name="book_name" class="form-control" placeholder="Search">
+                </div>
+                <button type="submit" class="btn btn-default">Submit</button>
+            </form>
+            <ul class="nav navbar-nav navbar-right">
+                {% if request.user.username %}
+                    <li><a href="#">{{ request.user.username }}</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                           aria-expanded="false">个人中心 <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/home/">个人主页</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="/logout/">注销</a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li><a href="/login/">登录</a></li>
+                    <li><a href="/reg/">注册</a></li>
+
+                {% endif %}
+
+
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+<div class="container">
+    <div class="col-md-3">
+        <div class="panel panel-primary">
+            <div class="panel-heading">文章分类</div>
+            {% for category in book %}
+                <div class="panel-body">
+                    <p>{{ category.title }}--{{ category.tag }}</p>
+
+                </div>
+            {% endfor %}
+
+
+        </div>
+        <div class="panel panel-warning">
+            <div class="panel-heading">文章得分</div>
+            {% for tag in book %}
+                <div class="panel-body">
+                    <p>{{ tag.title }}--{{ tag.scor }}</p>
+
+                </div>
+            {% endfor %}
+
+
+        </div>
+        <div class="panel panel-warning">
+            <div class="panel-heading">日期归档</div>
+            {% for tag in book %}
+                <div class="panel-body">
+                    <p>{{ tag.title }}--{{ tag.time }}</p>
+
+                </div>
+            {% endfor %}
+
+
+        </div>
+    </div>
+    <div class="col-md-8">
+
+        <!--个人博客列表 开始-->
+
+
+        {% for article in book %}
+            <div class="article-detail">
+                <div class="media-left media-middle">
+                    <table>
+                        <label for="id_span">
+                            <div>
+                                <a href="/find/{{ article.title }}" id="id_span">
+                                    <img class="media-object author-img "
+                                         src="/static/pic/{{ article.title }}.png" alt="头像">
+                                    <p style="margin-left:1px;float: left ">{{ article.title }}</p>
+                                </a>
+                            </div>
+
+
+                        </label>
+                    </table>
+
+                </div>
+                <p>{{ article.brief | safe }}</p>
+            </div>
+            <div>
+                <div style="margin-top: 50px;margin-left: 500px; " class="action">
+                    <span class="glyphicon glyphicon-thumbs-up action1" id="digg_count shoucang"><a
+                            href="/shoucang/{{ article.pk }}">{{ msg }}收藏本书</a></span>
+
+
+                </div>
+            </div>
+            <div id="error" style="color: red;"></div>
+            <div class="info" style="display: none;" username="{{ request.user.username }}"
+                 article_id="{{ article.pk }}"></div>
+        {% endfor %}
+
+        {{ score.score }}{{ score.user.username }}
+
+
+
+        <div class="comment_tree">
+
+        </div>
+        <hr>
+        <p>评论列表</p>
+        <ul class="comment_list">
+            {% for comment in comment_list %}
+                <li class="list-group-item">
+                    <div>
+                        <a href="">#{{ forloop.counter }}楼</a>&nbsp;&nbsp;
+                        {#                        <span style="color: gray;">{{ comment.|date:"Y-m-d" }}</span>&nbsp;&nbsp;#}
+                        <span>{{ comment.user.username }}</span>
+
+                    </div>
+
+                    {% if comment.parent_comment_id %}
+                        <div class="pid_info">
+                            <p>{{ comment.parent_comment.user.username }}&nbsp;&nbsp;&nbsp;{{ comment.parent_comment.content }}</p>
+                        </div>
+                    {% endif %}
+
+                    <div class="con">
+                        <p>
+                            {{ comment.content }}
+                        </p>
+                        <span class="glyphicon glyphicon-thumbs-up action1" id="digg_count dianzan"><a
+                                href="/dianzan/{{ comment.nid }}/{{ comment.book.nid }}">{{ msg0 }}点赞评论</a></span>
+                    </div>
+
+                </li>
+            {% endfor %}
+
+        </ul>
+
+        <div class="div_comment">
+            <p>
+                昵称<input type="text" id="tbCommentAuthor" disabled="disabled" class="author" size="50"
+                         value="{{ request.user.username }}">
+            </p>
+            <p>
+                评论:
+            </p>
+            <input name="" id="comment_content" cols="50" rows="10"></input>
+            <button id="comment_btn">提交评论</button>
+            <input name="" id="score_content" cols="50" rows="10"></input>
+            <button id="score_btn">提交评分</button>
+        </div>
+
+        <div class="clear"></div>
+        <script>
+            $("#score_btn").click(function () {
+                var score = $("#score_content").val();
+                var book_pk = $(".info").attr("article_id");
+                {#var str = "您对"+#}
+                $.ajax({
+                        url: "/score/",
+                        type: "get",
+                        data: {
+                            "score": score,
+                            "book_pk": book_pk
+                        },
+                        success: function (data) {
+                            $("#score_content").val("");
+                            alert("您已经评分成功!");
+                        }
+                    }
+                )
+            })
+
+        </script>
+
+        <script>
+            $("#shoucang").click(function () {
+                var book_pk = $(".info").attr("article_id");
+                $.ajax({
+                    url: "/shoucang/",
+                    type: "get",
+                    data: {"book_pk": book_pk},
+                    success: function (data) {
+                        alert("您已收藏成功,可到个人主页查看")
+                    }
+                })
+            })
+        </script>
+
+        <script>
+            $("#comment_btn").click(function () {
+                var comment = $("#comment_content").val();
+                var book_pk = $(".info").attr("article_id");
+                var username = $(".info").attr("username");
+                {#alert(data.msg);#}
+                $.ajax({
+                    url: "/add_comment/",
+                    type: "get",
+                    data: {
+                        "book_pk": book_pk,
+                        "username": username,
+                        "comment": comment
+                    },
+                    success: function (data) {
+                        $("#comment_content").val("");
+                        alert("您已评论,刷新页面可见")
+                    }
+                })
+            })
+        </script>
+
+
+        {# 根评论and子评论#}
+        <script>
+            //获取评论数据,展示评论树
+
+            {#$.ajax({#}
+            {#    url: "blog/comment_tree/" + '{{ article.pk }}/',#}
+            {#    type: "get",#}
+            {#    success: function (data) {#}
+            {#        console.log(data);#}
+            {#        $.each(data, function (index, comment_dict) {#}
+            {#            var s = '<div style="margin-left:20px" comment_id="' + comment_dict.pk + '">\n' + '<span class="content">' + comment_dict.content + '</span>\n' + '</div>'#}
+            {#            if (comment_dict.parent_comment_id) {#}
+            {#                //子评论#}
+            {#                pid = comment_dict.parent_comment_id;#}
+            {#                $("[comment_id=" + pid + "]").append(s)#}
+            {#            } else {//根评论#}
+            {##}
+            {#                $(".comment_tree").append(s)#}
+            {#            }#}
+            {#        })#}
+            {#    }#}
+            {#})
+            ;
+            #}
+
+
+            //提交评论
+            {#var pid = "";#}
+            {#$("#comment_btn").click(function () {#}
+            {#    var article_id = $(".info").attr("article_id");#}
+            {#    var content = $("#comment_content").val();#}
+            {#    if (pid) {#}
+            {#        //子评论把用户名截掉#}
+            {#        var index = content.indexOf("\n");#}
+            {#        content = content.slice(index + 1);#}
+            {#    }#}
+            {##}
+            {#    $.ajax({#}
+            {#        url: "/blog/comment/",#}
+            {#        type: "get",#}
+            {#        data: {#}
+            {#            article_id: article_id,#}
+            {#            content: content,#}
+            {#            pid: pid,#}
+            {#        },#}
+            {#        success: function (data) {#}
+            {#            console.log(data);#}
+            {##}
+            {#            var comment_li = '<li class="list-group-item"> <div> <span style="color: gray;">' + data.create_time + '</span>&nbsp;&nbsp; <span>' + data.username + '</span> <a href="" class="pull-right"><span>回复</span></a> </div> <div class="con"> <p> ' + data.content + ' </p> </div> </li>';#}
+            {#            //标签#}
+            {#            $(".comment_list").append(comment_li);#}
+            {##}
+            {#            if (pid) {#}
+            {#                var comment_li = '<div class="pid_info">\n' + '<p>' + data.comment_parent_username + '&nbsp;&nbsp;&nbsp;' + data.comment_parent_content + '</p>\n' + '</div>';#}
+            {#                $(".comment_list").append(comment_li);#}
+            {#            }#}
+            {#            //清空输入框#}
+            {#            $("#comment_content").val("");#}
+            {#            //清空pid#}
+            {#            pid = "";#}
+            {#        }#}
+            {#    })#}
+            {#})
+            ;
+            #}
+            {# 回复按钮   #}
+            $(".list-group-item .reply_btn").click(function () {
+                $("#comment_content").focus();
+                var v = "@" + $(this).attr("username");
+                $("#comment_content").val(v + ":\n");
+                pid = $(this).attr("comment_pk");
+            })
+        </script>
+
+
+        <!--个人博客列表 结束-->
+    </div>
+</div>
+
+</body>
+</html>
